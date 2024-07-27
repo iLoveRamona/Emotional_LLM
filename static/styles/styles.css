@@ -1,0 +1,82 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    height: 80vh;
+}
+
+#messages {
+    width: 100%;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    padding: 10px;
+    overflow-y: scroll;
+    height: calc(100% - 60px);
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.message {
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    width: 100%; /* Сообщение на весь контейнер */
+    word-wrap: break-word;
+    padding: 8px; /* Сделаем сообщение поменьше */
+    border-radius: 10px;
+    align-self: flex-end; /* Выравнивание блока сообщения по правой границе */
+    background-color: #cce5ff; /* Более холодный цвет фона для правых сообщений */
+}
+
+.message.left {
+    align-self: flex-start; /* Выравнивание блока сообщения по левой границе для сообщений пользователя */
+    background-color: #e2e3e5; /* Более холодный цвет фона для левых сообщений */
+}
+
+.username {
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.details {
+    font-size: 0.8em;
+    color: gray;
+    display: flex;
+    align-items: center;
+}
+
+.emotion,
+.money {
+    margin-right: 5px;
+}
