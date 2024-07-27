@@ -49,3 +49,16 @@ async def start_dialog(action: dict):
         messages.append(response_message)
 
     return response_messages
+
+@router.post("/send-messages", response_model=List[Message])
+async def start_dialog(action: dict):
+    print(action)
+    response_message = [Message(
+        id=len(messages) + 1,
+        role=['user', 'bot'][random.randint(0, 1)],
+        username='ChatBot',
+        message=f'Message {1 + 1} from the bot',
+        emotion=random.choice(['радость', 'грусть', 'отвращение', 'гнев', 'страх']),
+        money=f"{random.randint(1, 10)} coins"
+    )]
+    return response_message

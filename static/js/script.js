@@ -95,6 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             console.log('Success:', data);
+            displayMessagesSequentially(data)
         } catch (error) {
             console.error('Error sending messages:', error);
         }
