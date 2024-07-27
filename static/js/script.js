@@ -1,15 +1,16 @@
 document.addEventListener('DOMContentLoaded', () => {
     const messagesContainer = document.getElementById('messages');
     const startDialogButton = document.getElementById('start-dialog');
+    const switchModeButton = document.getElementById('switch-mode');
+    const modeControls = document.getElementById('mode-controls');
+    const passButton = document.getElementById('pass');
+    const takeButton = document.getElementById('take');
+
+    let messages = [];
 
     const displayMessage = (msg) => {
         const messageElement = document.createElement('div');
-        // Добавляем классы в зависимости от роли сообщения
-        if (msg.role === 'user') {
-            messageElement.classList.add('message', 'left');
-        } else {
-            messageElement.classList.add('message', 'right');
-        }
+        messageElement.classList.add('message', msg.role === 'user' ? 'left' : 'right');
 
         const usernameElement = document.createElement('span');
         usernameElement.classList.add('username');
@@ -68,12 +69,34 @@ document.addEventListener('DOMContentLoaded', () => {
         messageElement.appendChild(detailsElement);
 
         messagesContainer.appendChild(messageElement);
+        messagesContainer.scrollTop = messagesContainer.scrollHeight; // Автоматическая прокрутка вниз
     };
 
     const displayMessagesSequentially = (messages, index = 0) => {
         if (index < messages.length) {
             displayMessage(messages[index]);
             setTimeout(() => displayMessagesSequentially(messages, index + 1), 1000);
+        }
+    };
+
+    const sendMessagesToServer = async (messages) => {
+        try {
+            const response = await fetch('/send-messages', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ messages })
+            });
+
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+
+            const data = await response.json();
+            console.log('Success:', data);
+        } catch (error) {
+            console.error('Error sending messages:', error);
         }
     };
 
@@ -92,11 +115,38 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            displayMessagesSequentially(data);
+            messages = data;
+            displayMessagesSequentially(messages);
         } catch (error) {
             console.error('Error starting dialog:', error);
         }
     };
 
+    const switchMode = () => {
+        if (modeControls.style.display === 'none') {
+            modeControls.style.display = 'block';
+            startDialogButton.style.display = 'none';
+        } else {
+            modeControls.style.display = 'none';
+            startDialogButton.style.display = 'block';
+        }
+    };
+
+    switchModeButton.addEventListener('click', switchMode);
+
     startDialogButton.addEventListener('click', startDialog);
+
+    passButton.addEventListener('click', () => {
+        const message = { role: 'user', username: 'User', message: 'Pass' };
+        messages.push(message);
+        displayMessage(message);
+        sendMessagesToServer(messages); // Отправка истории сообщений на сервер
+    });
+
+    takeButton.addEventListener('click', () => {
+        const message = { role: 'user', username: 'User', message: 'Take' };
+        messages.push(message);
+        displayMessage(message);
+        sendMessagesToServer(messages); // Отправка истории сообщений на сервер
+    });
 });

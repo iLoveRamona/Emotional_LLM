@@ -29,7 +29,16 @@ body {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     padding: 10px;
     overflow-y: scroll;
-    height: calc(100% - 60px);
+    height: calc(100% - 100px);
+    margin-bottom: 10px;
+}
+
+.button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-top: 20px; /* Отступ сверху */
+    gap: 20px; /* Расстояние между кнопками */
 }
 
 button {
@@ -40,7 +49,7 @@ button {
     border-radius: 5px;
     font-size: 16px;
     cursor: pointer;
-    margin-top: 20px;
+    margin-top: 5px;
 }
 
 button:hover {
@@ -51,17 +60,17 @@ button:hover {
     margin-bottom: 10px;
     display: flex;
     flex-direction: column;
-    width: 100%; /* Сообщение на весь контейнер */
+    width: 100%;
     word-wrap: break-word;
-    padding: 8px; /* Сделаем сообщение поменьше */
+    padding: 8px;
     border-radius: 10px;
-    align-self: flex-end; /* Выравнивание блока сообщения по правой границе */
-    background-color: #cce5ff; /* Более холодный цвет фона для правых сообщений */
+    align-self: flex-end;
+    background-color: #cce5ff;
 }
 
 .message.left {
-    align-self: flex-start; /* Выравнивание блока сообщения по левой границе для сообщений пользователя */
-    background-color: #e2e3e5; /* Более холодный цвет фона для левых сообщений */
+    align-self: flex-start;
+    background-color: #e2e3e5;
 }
 
 .username {
