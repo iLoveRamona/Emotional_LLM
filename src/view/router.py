@@ -61,7 +61,7 @@ async def start_dialog(action: dict):
 
 
 @router.post("/send-messages", response_model=List[Message])
-async def start_dialog(action: dict):
+async def send_messages(action: dict):
     if action.get('action') != 'start':
         raise HTTPException(status_code=400, detail="Invalid action")
     print(action)
