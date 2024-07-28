@@ -35,13 +35,11 @@ async def root(request: Request):
 
 
 @router.post("/start-dialog", response_model=List[Message])
-async def start_dialog(action: dict):
+async def start_dialog():
     usr1 = "Иннокентий"
     usr2 = "Василиск"
-    game = CentipedeGame(
-        User(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]),
-        User(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]),        10
-             )
+    users = {usr1: User(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]), usr2: User(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
+    game = CentipedeGame(users[usr1], users[usr2], 10)
 
     while not game.is_over:
         game.play_round(api, model_uri)
@@ -50,9 +48,9 @@ async def start_dialog(action: dict):
         response_message = Message(
             id=0,
             role=['user', 'bot'][int(entry.split()[0] == usr1)],
-            username='name',
-            message='entry',
-            emotion=random.choice(['радость', 'грусть', 'отвращение', 'гнев', 'страх']),
+            username=entry.split()[0],
+            message=entry,
+            emotion=users[usr1].emotional_state,
             money=f"{random.randint(1, 10)} coins"
         )
         response_messages.append(response_message)
