@@ -4,7 +4,7 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Optional
-from src.view.agent import CentipedeGame, User, api
+from src.view.agent import CentipedeGame, Player, api
 from src.view.config import model_uri
 
 import random
@@ -38,20 +38,24 @@ async def root(request: Request):
 async def start_dialog():
     usr1 = "Иннокентий"
     usr2 = "Василиск"
-    users = {usr1: User(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]), usr2: User(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
+    users = {usr1: Player(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]), usr2: Player(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
     game = CentipedeGame(users[usr1], users[usr2], 10)
 
     while not game.is_over:
         game.play_round(api, model_uri)
+    print(game.explanation)
     response_messages = []
-    for entry in game.history:
+    for i in range(len(game.history)):
+        usr = False
+        if usr1 in game.history[i]:
+            usr = True
         response_message = Message(
             id=0,
-            role=['user', 'bot'][int(entry.split()[0] == usr1)],
-            username=entry.split()[0],
-            message=entry,
-            emotion=users[usr1].emotional_state,
-            money=f"{random.randint(1, 10)} coins"
+            role=['user', 'bot'][int(usr)],
+            username=(users[usr1] if usr else users[usr2]).name,
+            message=game.explanation[i],
+            emotion=(users[usr1] if usr else users[usr2]).emotional_state,
+            money=f"{1} coins"
         )
         response_messages.append(response_message)
         messages.append(response_message)
