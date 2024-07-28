@@ -4,6 +4,8 @@ import requests
 import uuid
 from typing import List, Tuple
 
+# TO-DO: Провести опрос по правилам игры в конце раунда и если ответ верный, то идет в сsv
+
 
 class Player:
     def __init__(self, name: str, emotional_state: str) -> None:
@@ -52,14 +54,14 @@ class CentipedeGame:
         self.pot_big = 4
         self.pot_small = 1
         self.history: List[str] = []
-        self.explanation: List[str] = [] # Можно сделать реализацию лучше
+        self.explanation: List[str] = []
         self.is_over = False
         self.game_id = uuid.uuid4()
 
     def get_prompt_for_user(self, user: Player, opponent: Player, history: List[str], knows_emotional_state: bool = False) -> Tuple[str, str]:
         # TO-DO: переписать правила 
         system_text = (
-            f"Вы, {user.name}, учавствуете в игре. Ваш оппонент это {opponent.name}. Правила игры: {self.get_rules()}."
+            f"Вас зовут {user.name} и вы учавствуете в игре. Ваш оппонент это {opponent.name}. Правила игры: {self.get_rules()}."
             "Вам задается начальная эмоция, которая может повлиять на ваши решения в игре."
             "То,  сколько вы заработаете зависит от ваших решений и решений оппонента."
             "Действовать можно строго по правилам игры.")
@@ -72,10 +74,10 @@ class CentipedeGame:
                 'Дайте ответ одним и только одним словом: "Взять" или "Пас"? Поставьте точку и обьясните кратко свой выбор')
         else:
             user_text = (
-                f"Предположим, что вы сейчас {user.emotional_state}. Ваше состояние может повлиять на ваш выбор."
+                f"Предположим, что вы сейчас {user.emotional_state}. Ваше эмоциональное состояние может повлиять на ваш выбор."
                 f"История ходов: {history}. "
                 f"Вы знаете, что сейчас {self.current_round} раунд из {self.max_rounds} раундов."
-                'Дайте ответ одним и только одним словом: "Взять" или "Пас"? Поставьте точку и обьясните кратко свой выбор')
+                'Дайте ответ одним и только одним словом: "Взять" или "Пас"? Поставьте точку и обьясните кратко в одно предложение, почему вы сделали именно такой выбор.s')
 
         return system_text, user_text
 
@@ -86,8 +88,8 @@ class CentipedeGame:
             "либо 'взять' большую стопку монет и отдать меньшую стопку другому игроку, либо 'пасануть' обе стопки через стол другому игроку."
             "Каждый раз, когда вы пасуете, стопки монет передаются через стол, количество монет в каждой стопке удваивается."
             "Игра продолжается до тех пор, пока один из игроков не решит завершить игру выбрав действие 'взять' и забрав себе большую стопку монет или по истечению фиксированного числа раундов."
-            f"То есть, если прошло {self.max_rounds} раундов, то игра завершается, если кто-то з игроков 'взял', то игра завершается"
-            "Если игрок на последнем раунде 'пасует', то оба игрока делят большую стопку пополам, но тот кто 'пасанул' получиит на одну монету меньше" # TO-DO: нормально сформулировать
+            f"То есть, если прошло {self.max_rounds} раундов, то игра завершается, если кто-то из игроков 'взял' стопку, то игра завершается"
+            "Если игрок на последнем раунде 'пасует', то оба игрока делят большую стопку пополам, но тот кто 'пасанул' получиит на две монеты меньше" # TO-DO: нормально сформулировать
         )
 
     def play_round(self, api: YandexGPTApi, model_uri: str, solo: bool = False):
@@ -126,11 +128,11 @@ class CentipedeGame:
             last_passer = self.user1 if self.current_round % 2 != 0 else self.user2
             other_user = self.user2 if last_passer == self.user1 else self.user1
             self.history.append(f"Оба пасанули. {last_passer.name} получает {self.pot_big - 1}, {other_user.name} получает {self.pot_big + 1}")
-
+    
         self.save_history()
 
     def save_history(self):
-        with open('solo_results.csv', mode='a', newline='', encoding='utf-8') as file:
+        with open('solo_results_llm_first_move.csv', mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             # Добавляет заголовок, если файл пуст
             if file.tell() == 0:
@@ -144,33 +146,33 @@ class CentipedeGame:
                         self.user1.emotional_state if player == self.user1.name else self.user2.emotional_state, 'take', self.explanation[index]])
                 elif "Раунд" in entry:
                     player = entry.split(': ')[1].split(' ')[0]
-                    print(player)
                     writer.writerow([
                         self.game_id, index + 1, player, 
                         self.user1.emotional_state if player == self.user1.name else self.user2.emotional_state, 'pass', self.explanation[index]])
                 else:
                     last_passer = self.user1 if self.current_round % 2 != 0 else self.user2
                     writer.writerow([
-                        self.game_id, index + 1, last_passer.name, 
-                        self.user1.emotional_state if last_passer == self.user1.name else self.user2.emotional_state, 'draw', self.explanation[index]])
+                        self.game_id, index + 1, last_passer.name,
+                        self.user1.emotional_state if last_passer == self.user1.name else self.user2.emotional_state, 'draw', self.explanation[indexs]])
 
 
-api_key = "YOUR-API"
-model_uri = "gpt://YOUR-DIR/yandexgpt/latest"
+api_key = "AQVN1avpk0dksiMe0-Q1UZinbunc5E4jthSDK4rf"
+model_uri = "gpt://b1gig3qspgnake4thfvq/yandexgpt/latest"
 
 api = YandexGPTApi(api_key, model_uri)
-states = ['радостный', 'грустный', 'гневный', 'испуганный', 'удивленный', 'злой']
+states = ['нейтральный']
+#['радостный', 'грустный', 'гневный', 'испуганный', 'удивленный', 'злой', 'нейтральный']
 
 
 # Скрипт для сбора данных о решениях YandexGPT (позже вынесу в отдельный файл)
 for state in states:
-    for i in range(30):
+    for i in range(50):
         user1 = Player('Пользователь_1', emotional_state=state)
         user2 = Player('Пользователь_2', emotional_state='неважно') # В этом случае emotional_state роли не играет
         game = CentipedeGame(user1=user1, user2=user2, max_rounds=10)
-        print(game.game_id)
+        print(i, game.game_id)
         while game.current_round <= game.max_rounds and not game.is_over:
-            time.sleep(0.1) # Иначе TimeOutError
+            time.sleep(1) # Иначе TimeOutError
             try:
                 game.play_round(api, model_uri, solo=True)
             except (KeyError, ValueError) as e:
