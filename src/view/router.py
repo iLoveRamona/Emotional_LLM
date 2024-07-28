@@ -4,8 +4,9 @@ from fastapi.templating import Jinja2Templates
 from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 from typing import List, Optional
-from agent import CentipedeGame, User
-from config import model_uri, api
+from src.view.agent import CentipedeGame, User, api
+from src.view.config import model_uri
+
 import random
 router = APIRouter(prefix="",
                    tags=["upload"])
