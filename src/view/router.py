@@ -52,7 +52,7 @@ async def start_dialog():
             id=0,
             role=['user', 'bot'][int(usr)],
             username=usr1 if usr else usr2,
-            message=game.explanation[i],
+            message=game.explanation[i][0].upper() + game.explanation[i][1:].replace('васелиск', 'Васелиск').replace('иннокентий', 'Иннокентий'),
             emotion=(users[usr1] if usr else users[usr2]).emotional_state,
             money=f"big pot: {game.pot_big} coins \n small pot: {game.pot_small} coins "
         )
@@ -81,8 +81,7 @@ async def send_messages(action: dict):
                     role=['user', 'bot'][x['role'] == usr2],
                     username='Server',
                     message=f'Игра окончена',
-                    emotion=x['emotion'],
-                    money=f"",
+                    money=f"bit pot :{x['big_pot']}, small pot {x['small_pot']} ",
                     action='Take',
                     big_pot=x['big_pot'],
                     small_pot=x['small_pot'],
@@ -127,13 +126,12 @@ async def send_messages(action: dict):
             id=0,
             role=['user', 'bot'][int(usr)],
             username=usr2 if usr else usr1,
-            message=game.explanation[0]+'ы)',
+            message=game.explanation[0][0].upper() + game.explanation[0][1:].replace('васелиск', 'Васелиск'),
             emotion=(users[usr2] if usr else users[usr1]).emotional_state,
-            money=f"big pot: {pot_big * 2**(len(history))} coins \n small pot: {pot_small * 2**(len(history))} coins ",
+            money=f"big pot: {pot_big * 2**(len(history) - 1)} coins \n small pot: {pot_small * 2**(len(history) - 1)} coins ",
             action=acted,
             big_pot=game.pot_big,
             small_pot=game.pot_small
         )]
-    ['Раунд 1: Иннокентий пас', 'Раунд 1: Василиск пас', 'Раунд 2: Иннокентий пас', 'Раунд 1: Василиск пас']
 
     return response_message

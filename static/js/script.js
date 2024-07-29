@@ -3,9 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const startDialogButton = document.getElementById('start-dialog');
     const switchModeButton = document.getElementById('switch-mode');
     const modeControls = document.getElementById('mode-controls');
-    const passButton = document.getElementById('pass');
+    const passButton     = document.getElementById('pass');
     const takeButton = document.getElementById('take');
-
+    const clearHistoryButton = document.getElementById('clear-history')
     let messages = [];
 
     const displayMessage = (msg) => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 case 'радостный':
                     emotionIcon.classList.add('fa-laugh');
                     break;
-                case 'злой':
+                case 'брезгливый':
                     emotionIcon.classList.add('fa-frown');
                     break;
                 case 'гневный':
@@ -117,8 +117,12 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             const seq_messages = [];
             const data = await response.json();
+            const message = {role: 'user', username: 'Server', action: 'Pass', message: 'Игра окончена', money: data['big_pot']};
+            data.push(message);
 
-            displayMessagesSequentially(data);
+            await displayMessagesSequentially(data);
+
+
 
         } catch (error) {
             console.error('Error starting dialog:', error);
@@ -143,23 +147,54 @@ document.addEventListener('DOMContentLoaded', () => {
     startDialogButton.addEventListener('click', startDialog);
 
     passButton.addEventListener('click', async () => {
-        const message = [{role: 'user', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: '0'}];
+        if (messages.length === 0){
+            var message = [{
+                role: 'bot',
+                username: 'Иннокентий',
+                action: 'Pass',
+                message: 'Иннокентий пасует',
+                money: 'big pot: 4  small pot: 1',
+                big_pot: 4,
+                small_pot: 1
+            }];
+        }
+        else{
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'], big_pot:4, small_pot: 1}];
+        }
+        console.log(messages)
         messages.push(message);
         displayMessage(message[0]);
         const data = await sendMessagesToServer(messages);
         console.log(data[0]['action']);
         messages.push(data);
         if (data[0]['action'] === 'Take'){
-                const message = [{role: 'user', username: 'Server', action: 'Pass', message: 'Игра окончена', money: data['big_pot']}];
+                const message = [{role: 'bot', username: 'Server', action: 'Pass', message: 'Игра окончена', money: data['big_pot']}];
                 displayMessage(message[0]);
                 await clear_history();
                 console.log('clear')
             }
 
     });
-
+    clearHistoryButton.addEventListener('click', async () => {
+        messagesContainer.replaceChildren();
+        await clear_history();
+    });
     takeButton.addEventListener('click', async () => {
-        const message = [{role: 'user', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку. Василиск получает меньшую'}];
+       if (messages.length === 0){
+            var message = [{
+                role: 'bot',
+                username: 'Иннокентий',
+                action: 'Take',
+                message: 'Иннокентий взял большую стопку',
+                money: 'big pot: 4  small pot: 1',
+                big_pot: 4,
+                small_pot: 1
+            }];
+        }
+        else{
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'], big_pot:4, small_pot: 1}];
+        }
+
         messages.push(message);
         displayMessage(message[0]);
         const data = await sendMessagesToServer(messages);
