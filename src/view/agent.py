@@ -133,7 +133,7 @@ class CentipedeGame:
             self.history.append(
                 f"Оба пасанули. {last_passer.name} получает {self.pot_big - 1}, {other_user.name} получает {self.pot_big + 1}")
 
-        self.save_history()
+
 
     def save_history(self):
         with open('solo_results_llm_first_move.csv', mode='a', newline='', encoding='utf-8') as file:
@@ -161,6 +161,31 @@ class CentipedeGame:
                         self.game_id, index + 1, last_passer.name,
                         self.user1.emotional_state if last_passer == self.user1.name else self.user2.emotional_state,
                         'draw', self.explanation[index]])
+
+    def play_round_online(self, api: YandexGPTApi, model_uri: str, user_data: dict) -> None:
+        self.history = user_data['History']
+        user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
+        if user1 == user:
+            move = user_data['action']
+        else:
+            system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
+            response = api.send_prompt(system_text, user_text)
+            move = response.strip().lower().replace('**', '')
+
+        if move.startswith('взять'):
+            self.explanation.append(' '.join(move.split('.')[1:]))
+            self.end_game(user)
+        elif move.startswith('пас'):
+            self.explanation.append(' '.join(move.split('.')[1:]))
+            self.history.append(f"Раунд {self.current_round}: {user.name} пас")
+            self.pot_big *= 2
+            self.pot_small *= 2
+            self.current_round += 1
+            if self.current_round > self.max_rounds:
+                self.end_game()
+        else:
+            raise ValueError("Неправильный ответ. Ожидалось 'Взять' или 'Пас'.")
+
 
 
 api_key = "AQVN1avpk0dksiMe0-Q1UZinbunc5E4jthSDK4rf"

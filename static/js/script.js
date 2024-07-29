@@ -95,7 +95,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             console.log('Success:', data);
-            displayMessagesSequentially(data)
+            await displayMessagesSequentially(data)
+            return data
         } catch (error) {
             console.error('Error sending messages:', error);
         }
@@ -116,14 +117,20 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
             const data = await response.json();
-            messages = data;
+            messages.push(data);
+            if (data['action'] == 'Take'){
+                await clear_history();
+            }
             displayMessagesSequentially(messages);
         } catch (error) {
             console.error('Error starting dialog:', error);
         }
     };
-
+    const clear_history = async () => {
+        messages = []
+    };
     const switchMode = () => {
+        messages = []
         if (modeControls.style.display === 'none') {
             modeControls.style.display = 'block';
             startDialogButton.style.display = 'none';
@@ -137,17 +144,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
     startDialogButton.addEventListener('click', startDialog);
 
-    passButton.addEventListener('click', () => {
-        const message = { role: 'user', username: 'User', message: 'Pass' };
+    passButton.addEventListener('click', async () => {
+        const message = {role: 'user', username: 'User', message: 'Pass'};
         messages.push(message);
         displayMessage(message);
-        sendMessagesToServer(messages); // Отправка истории сообщений на сервер
+        const data = await sendMessagesToServer(messages);
+        messages.push(data);
     });
 
-    takeButton.addEventListener('click', () => {
-        const message = { role: 'user', username: 'User', message: 'Take' };
+    takeButton.addEventListener('click', async () => {
+        const message = {role: 'user', username: 'User', action: 'Take'};
         messages.push(message);
         displayMessage(message);
-        sendMessagesToServer(messages); // Отправка истории сообщений на сервер
+        const data = await sendMessagesToServer(messages);
+        messages.push(data);
+        await clear_history();
     });
 });
