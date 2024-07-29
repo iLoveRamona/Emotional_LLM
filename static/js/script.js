@@ -115,13 +115,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
-
+            const seq_messages = [];
             const data = await response.json();
-            messages.push(data);
-            if (data['action'] == 'Take'){
-                await clear_history();
-            }
-            displayMessagesSequentially(messages);
+
+            displayMessagesSequentially(data);
+
         } catch (error) {
             console.error('Error starting dialog:', error);
         }
@@ -145,18 +143,27 @@ document.addEventListener('DOMContentLoaded', () => {
     startDialogButton.addEventListener('click', startDialog);
 
     passButton.addEventListener('click', async () => {
-        const message = {role: 'user', username: 'User', message: 'Pass'};
+        const message = [{role: 'user', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: '0'}];
         messages.push(message);
-        displayMessage(message);
+        displayMessage(message[0]);
         const data = await sendMessagesToServer(messages);
+        console.log(data[0]['action']);
         messages.push(data);
+        if (data[0]['action'] === 'Take'){
+                const message = [{role: 'user', username: 'Server', action: 'Pass', message: 'Игра окончена', money: data['big_pot']}];
+                displayMessage(message[0]);
+                await clear_history();
+                console.log('clear')
+            }
+
     });
 
     takeButton.addEventListener('click', async () => {
-        const message = {role: 'user', username: 'User', action: 'Take'};
+        const message = [{role: 'user', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку. Василиск получает меньшую'}];
         messages.push(message);
-        displayMessage(message);
+        displayMessage(message[0]);
         const data = await sendMessagesToServer(messages);
+
         messages.push(data);
         await clear_history();
     });

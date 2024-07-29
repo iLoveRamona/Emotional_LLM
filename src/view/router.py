@@ -58,7 +58,6 @@ async def start_dialog():
         )
         print(game.history[i])
         response_messages.append(response_message)
-        messages.append(response_message)
 
     return response_messages
 
@@ -66,32 +65,72 @@ async def start_dialog():
 @router.post("/send-messages", response_model=List[Message])
 async def send_messages(action: dict):
     history = []
-    usr1 = "Иннокентий"
-    usr2 = "Василиск"
+    action = action['messages']
+    print(action)
+    usr2 = "Иннокентий"
+    usr1 = "Василиск"
     users = {usr1: Player(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]),
              usr2: Player(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
     game = CentipedeGame(users[usr1], users[usr2], 10)
     for x in action:
-        if x['action'] == 'Take':
-            response_message = [Message(
-                id=0,
-                role=['user', 'bot'][x['username'] == usr1],
-                username=x['username'],
-                message=f'Message {1 + 1} from the bot',
-                emotion=x['emotion'],
-                money=f"{random.randint(1, 10)} coins",
-                big_pot=
-                action='Take'
-            )]
+        if x:
+            if x[0]['action'] == 'Take':
+                x = x[0]
+                response_message = [Message(
+                    id=0,
+                    role=['user', 'bot'][x['role'] == usr2],
+                    username='Server',
+                    message=f'Игра окончена',
+                    emotion=x['emotion'],
+                    money=f"",
+                    action='Take',
+                    big_pot=x['big_pot'],
+                    small_pot=x['small_pot'],
+
+                )]
+                break
+        else:
             break
 
     else:
+        history = []
         for x in range(len(action)):
 
-            if x % 2 - 1:
-                history.append(f'Раунд окончен: Оба пасанули')
+            if x % 2 == 0:
+
+                history.append(f'Раунд {x//2 + 1}: Иннокентий пас')
             else:
                 history.append(f'Раунд {x // 2 + 1}: Василиск пас')
-    game.play_round_online(history)
+
+
+        if action[-1][0]['action'] == 'Take':
+            act = 'взять'
+        else:
+            act = 'пас'
+
+
+        data = {'action': act, 'history': history}
+        pot_big = game.pot_big
+        pot_small = game.pot_small
+        game.play_round_online(api, model_uri, data)
+        usr = False
+        if usr2 + ' пас' in game.history[-1] or usr2 + ' забрал' in game.history[-1]:
+            usr = True
+        print(game.history)
+        if game.history[-1].split()[-1] == 'пас':
+            acted = 'Pass'
+        else:
+            acted = 'Take'
+        response_message = [Message(
+            id=0,
+            role=['user', 'bot'][int(usr)],
+            username=usr2 if usr else usr1,
+            message=game.explanation[0]+'ы)',
+            emotion=(users[usr2] if usr else users[usr1]).emotional_state,
+            money=f"big pot: {pot_big * 2**(len(history))} coins \n small pot: {pot_small * 2**(len(history))} coins ",
+            action=acted,
+            big_pot=game.pot_big,
+            small_pot=game.pot_small
+        )]
 
     return response_message

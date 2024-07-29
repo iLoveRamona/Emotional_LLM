@@ -163,9 +163,9 @@ class CentipedeGame:
                         'draw', self.explanation[index]])
 
     def play_round_online(self, api: YandexGPTApi, model_uri: str, user_data: dict) -> None:
-        self.history = user_data['History']
+        self.history = user_data['history']
         user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
-        if user1 == user:
+        if self.user1 == user:
             move = user_data['action']
         else:
             system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
