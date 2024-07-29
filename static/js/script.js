@@ -29,19 +29,19 @@ document.addEventListener('DOMContentLoaded', () => {
             const emotionIcon = document.createElement('i');
             emotionIcon.classList.add('fas');
             switch (msg.emotion) {
-                case 'грусть':
+                case 'грустный':
                     emotionIcon.classList.add('fa-sad-tear');
                     break;
-                case 'радость':
+                case 'радостный':
                     emotionIcon.classList.add('fa-laugh');
                     break;
-                case 'отвращение':
+                case 'злой':
                     emotionIcon.classList.add('fa-frown');
                     break;
-                case 'гнев':
+                case 'гневный':
                     emotionIcon.classList.add('fa-angry');
                     break;
-                case 'страх':
+                case 'испуганный':
                     emotionIcon.classList.add('fa-flushed');
                     break;
                 default:

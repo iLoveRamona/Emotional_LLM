@@ -164,13 +164,13 @@ class CentipedeGame:
 
     def play_round_online(self, api: YandexGPTApi, model_uri: str, user_data: dict) -> None:
         self.history = user_data['history']
+        self.round = len(user_data['history']) + 1
+
         user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
-        if self.user1 == user:
-            move = user_data['action']
-        else:
-            system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
-            response = api.send_prompt(system_text, user_text)
-            move = response.strip().lower().replace('**', '')
+
+        system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
+        response = api.send_prompt(system_text, user_text)
+        move = response.strip().lower().replace('**', '')
 
         if move.startswith('взять'):
             self.explanation.append(' '.join(move.split('.')[1:]))

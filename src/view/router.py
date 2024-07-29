@@ -69,8 +69,8 @@ async def send_messages(action: dict):
     print(action)
     usr2 = "Иннокентий"
     usr1 = "Василиск"
-    users = {usr1: Player(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]),
-             usr2: Player(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
+    users = {usr1: Player(usr1, ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]),
+             usr2: Player(usr2, ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)])}
     game = CentipedeGame(users[usr1], users[usr2], 10)
     for x in action:
         if x:
@@ -98,9 +98,9 @@ async def send_messages(action: dict):
 
             if x % 2 == 0:
 
-                history.append(f'Раунд {x//2 + 1}: Иннокентий пас')
+                history.append(f'Раунд {x + 1}: Иннокентий пас')
             else:
-                history.append(f'Раунд {x // 2 + 1}: Василиск пас')
+                history.append(f'Раунд {x + 1}: Василиск пас')
 
 
         if action[-1][0]['action'] == 'Take':
@@ -116,7 +116,9 @@ async def send_messages(action: dict):
         usr = False
         if usr2 + ' пас' in game.history[-1] or usr2 + ' забрал' in game.history[-1]:
             usr = True
+
         print(game.history)
+        print(game.explanation)
         if game.history[-1].split()[-1] == 'пас':
             acted = 'Pass'
         else:
@@ -132,5 +134,6 @@ async def send_messages(action: dict):
             big_pot=game.pot_big,
             small_pot=game.pot_small
         )]
+    ['Раунд 1: Иннокентий пас', 'Раунд 1: Василиск пас', 'Раунд 2: Иннокентий пас', 'Раунд 1: Василиск пас']
 
     return response_message
