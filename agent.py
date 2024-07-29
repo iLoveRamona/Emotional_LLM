@@ -56,7 +56,7 @@ class CentipedeGame:
         self.is_over = False
         self.game_id = uuid.uuid4()
 
-    def get_prompt_for_user(self, user: Player, opponent: Player, history: List[str], knows_emotional_state: bool = True) -> Tuple[str, str]:
+    def get_prompt_for_user(self, user: Player, opponent: Player, history: List[str], knows_emotional_state: bool = False) -> Tuple[str, str]:
         system_text = (
             f"Вас зовут {user.name} и вы учавствуете в игре. Ваш оппонент это {opponent.name}. Правила игры: {self.get_rules()}."
             "Вам задается начальная эмоция, которая может повлиять на ваши решения в игре."
@@ -117,7 +117,7 @@ class CentipedeGame:
     def play_round(self, api: YandexGPTApi, model_uri: str, solo: bool = False) -> None:
         user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
 
-        if solo and user == self.user2: # Второй игрок всегда 'пасует'
+        if solo and user == self.user1: # Первый игрок всегда 'пасует'
             move = 'пас. без комментариев.'
         else:
             system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
@@ -154,7 +154,7 @@ class CentipedeGame:
         self.save_history()
 
     def save_history(self):
-        with open('duo_results_llm_vs_llm.csv', mode='a', newline='', encoding='utf-8') as file:
+        with open('solo_results_second_move.csv', mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             # Добавляет заголовок, если файл пуст
             if file.tell() == 0:

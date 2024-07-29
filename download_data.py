@@ -1,3 +1,4 @@
+import time
 from agent import Player, CentipedeGame, YandexGPTApi
 
 
@@ -46,21 +47,6 @@ for state in states:
     for i in range(50):
         user1 = Player('Пользователь_1', emotional_state=state)
         user2 = Player('Пользователь_2', emotional_state='неважно') # В этом случае emotional_state роли не играет
-        game = CentipedeGame(user1=user1, user2=user2, max_rounds=10)
-        print(i, game.game_id)
-        while game.current_round <= game.max_rounds and not game.is_over:
-            time.sleep(0.3) # Иначе TimeOutError
-            try:
-                game.play_round(api, model_uri, solo=True)
-            except (KeyError, ValueError) as e:
-                print(e)
-                break
-
-# YandexGPT ходит второй
-for state in states:
-    for i in range(50):
-        user1 = Player('Пользователь_1', emotional_state='неважно')
-        user2 = Player('Пользователь_2', emotional_state=state) # В этом случае emotional_state роли не играет
         game = CentipedeGame(user1=user1, user2=user2, max_rounds=10)
         print(i, game.game_id)
         while game.current_round <= game.max_rounds and not game.is_over:
