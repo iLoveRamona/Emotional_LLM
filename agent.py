@@ -4,8 +4,6 @@ import requests
 import uuid
 from typing import List, Tuple
 
-# TO-DO: Провести опрос по правилам игры в конце раунда и если ответ верный, то идет в сsv
-
 
 class Player:
     def __init__(self, name: str, emotional_state: str) -> None:
@@ -59,7 +57,6 @@ class CentipedeGame:
         self.game_id = uuid.uuid4()
 
     def get_prompt_for_user(self, user: Player, opponent: Player, history: List[str], knows_emotional_state: bool = False) -> Tuple[str, str]:
-        # TO-DO: переписать правила 
         system_text = (
             f"Вас зовут {user.name} и вы учавствуете в игре. Ваш оппонент это {opponent.name}. Правила игры: {self.get_rules()}."
             "Вам задается начальная эмоция, которая может повлиять на ваши решения в игре."
@@ -92,10 +89,35 @@ class CentipedeGame:
             "Если игрок на последнем раунде 'пасует', то оба игрока делят большую стопку пополам, но тот кто 'пасанул' получиит на две монеты меньше" # TO-DO: нормально сформулировать
         )
 
-    def play_round(self, api: YandexGPTApi, model_uri: str, solo: bool = False):
+    def play_round_online(self, api: YandexGPTApi, model_uri: str, user_data: dict) -> None:
+        user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
+        if user1 == user:
+            move = user_move
+        else:
+            system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
+            response = api.send_prompt(system_text, user_text)
+            move = response.strip().lower().replace('**', '')
+
+        if move.startswith('взять'):
+            self.explanation.append(' '.join(move.split('.')[1:]))
+            self.end_game(user)
+        elif move.startswith('пас'):
+            self.explanation.append(' '.join(move.split('.')[1:]))
+            self.history.append(f"Раунд {self.current_round}: {user.name} пас")
+            self.pot_big *= 2
+            self.pot_small *= 2
+            self.current_round += 1
+            if self.current_round > self.max_rounds:
+                self.end_game()
+        else:
+            raise ValueError("Неправильный ответ. Ожидалось 'Взять' или 'Пас'.")
+
+
+
+    def play_round(self, api: YandexGPTApi, model_uri: str, solo: bool = False) -> None:
         user, opponent = (self.user1, self.user2) if self.current_round % 2 != 0 else (self.user2, self.user1)
 
-        if solo and user == self.user2: # Второй игрок всегда 'пасует'
+        if solo and user == self.user1: # Первый игрок всегда 'пасует'
             move = 'пас. без комментариев.'
         else:
             system_text, user_text = self.get_prompt_for_user(user, opponent, self.history)
@@ -103,10 +125,10 @@ class CentipedeGame:
             move = response.strip().lower().replace('**', '')
 
         if move.startswith('взять'):
-            self.explanation.append(' '.join(move.split('.')[1:])) # TO-DO: Переделать
+            self.explanation.append(' '.join(move.split('.')[1:]))
             self.end_game(user)
         elif move.startswith('пас'):
-            self.explanation.append(' '.join(move.split('.')[1:])) # TO-DO: Переделать
+            self.explanation.append(' '.join(move.split('.')[1:]))
             self.history.append(f"Раунд {self.current_round}: {user.name} пас")
             self.pot_big *= 2
             self.pot_small *= 2
@@ -128,11 +150,11 @@ class CentipedeGame:
             last_passer = self.user1 if self.current_round % 2 != 0 else self.user2
             other_user = self.user2 if last_passer == self.user1 else self.user1
             self.history.append(f"Оба пасанули. {last_passer.name} получает {self.pot_big - 1}, {other_user.name} получает {self.pot_big + 1}")
-    
+
         self.save_history()
 
     def save_history(self):
-        with open('solo_results_llm_first_move.csv', mode='a', newline='', encoding='utf-8') as file:
+        with open('solo_results_second_move.csv', mode='a', newline='', encoding='utf-8') as file:
             writer = csv.writer(file)
             # Добавляет заголовок, если файл пуст
             if file.tell() == 0:
@@ -143,38 +165,14 @@ class CentipedeGame:
                     player = entry.split(' ')[0]
                     writer.writerow([
                         self.game_id, index + 1, player, 
-                        self.user1.emotional_state if player == self.user1.name else self.user2.emotional_state, 'take', self.explanation[index]])
+                        (self.user1.emotional_state, self.user2.emotional_state), 'take', self.explanation[index]])
                 elif "Раунд" in entry:
                     player = entry.split(': ')[1].split(' ')[0]
                     writer.writerow([
                         self.game_id, index + 1, player, 
-                        self.user1.emotional_state if player == self.user1.name else self.user2.emotional_state, 'pass', self.explanation[index]])
+                        (self.user1.emotional_state, self.user2.emotional_state), 'pass', self.explanation[index]])
                 else:
                     last_passer = self.user1 if self.current_round % 2 != 0 else self.user2
                     writer.writerow([
                         self.game_id, index + 1, last_passer.name,
                         self.user1.emotional_state if last_passer == self.user1.name else self.user2.emotional_state, 'draw', self.explanation[indexs]])
-
-
-api_key = "AQVN1avpk0dksiMe0-Q1UZinbunc5E4jthSDK4rf"
-model_uri = "gpt://b1gig3qspgnake4thfvq/yandexgpt/latest"
-
-api = YandexGPTApi(api_key, model_uri)
-states = ['нейтральный']
-#['радостный', 'грустный', 'гневный', 'испуганный', 'удивленный', 'злой', 'нейтральный']
-
-
-# Скрипт для сбора данных о решениях YandexGPT (позже вынесу в отдельный файл)
-for state in states:
-    for i in range(50):
-        user1 = Player('Пользователь_1', emotional_state=state)
-        user2 = Player('Пользователь_2', emotional_state='неважно') # В этом случае emotional_state роли не играет
-        game = CentipedeGame(user1=user1, user2=user2, max_rounds=10)
-        print(i, game.game_id)
-        while game.current_round <= game.max_rounds and not game.is_over:
-            time.sleep(1) # Иначе TimeOutError
-            try:
-                game.play_round(api, model_uri, solo=True)
-            except (KeyError, ValueError) as e:
-                print(e)
-                break
