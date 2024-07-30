@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     emotionIcon.classList.add('fa-laugh');
                     break;
                 case 'брезгливый':
-                    emotionIcon.classList.add('fa-frown');
+                    emotionIcon.classList.add('fa-face-vomit');
                     break;
                 case 'гневный':
                     emotionIcon.classList.add('fa-angry');

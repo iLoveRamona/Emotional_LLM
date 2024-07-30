@@ -39,15 +39,15 @@ async def start_dialog(action: dict):
     print(action)
     usr1 = "Иннокентий"
     usr2 = "Василиск"
-    if not (action['emotion_state_1'] in emts):
+    if not (action['emotion_state_1'] in emotes):
         emotion_1 = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]
     else:
-        emotion_1 = emts[action['emotion_state_1']]
-    if not (action['emotion_state_2'] in emts):
+        emotion_1 = action['emotion_state_1']
+    if not (action['emotion_state_2'] in emotes):
         emotion_2 = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]
     else:
-        emotion_2 = emts[action['emotion_state_2']]
-
+        emotion_2 = action['emotion_state_2']
+    print(action['emotion_state_1'], emotion_1)
     users = {usr1: Player(usr1, emotion_1), usr2: Player(usr2, emotion_2)}
     game = CentipedeGame(users[usr1], users[usr2], 10)
 

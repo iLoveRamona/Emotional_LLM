@@ -42,6 +42,7 @@ class YandexGPTApi:
             ]
         }
         response = requests.post(self.url, headers=self.headers, json=prompt).json()
+        print(response)
         return response['result']['alternatives'][0]['message']['text']
 
 
@@ -188,8 +189,6 @@ class CentipedeGame:
 
 
 
-api_key = "AQVN1avpk0dksiMe0-Q1UZinbunc5E4jthSDK4rf"
-model_uri = "gpt://b1gig3qspgnake4thfvq/yandexgpt/latest"
 
 api = YandexGPTApi(api_key, model_uri)
 states = ['нейтральный']
