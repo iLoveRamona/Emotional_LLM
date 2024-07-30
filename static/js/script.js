@@ -159,7 +159,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }];
         }
         else{
-            var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'], big_pot:4, small_pot: 1}];
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2}];
         }
         console.log(messages)
         messages.push(message);
@@ -192,7 +192,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }];
         }
         else{
-            var message = [{role: 'bot', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'], big_pot:4, small_pot: 1}];
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2}];
         }
 
         messages.push(message);

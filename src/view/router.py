@@ -130,8 +130,8 @@ async def send_messages(action: dict):
             emotion=(users[usr2] if usr else users[usr1]).emotional_state,
             money=f"big pot: {pot_big * 2**(len(history) - 1)} coins \n small pot: {pot_small * 2**(len(history) - 1)} coins ",
             action=acted,
-            big_pot=game.pot_big,
-            small_pot=game.pot_small
+            big_pot=game.pot_big * 2**(len(history) - 1),
+            small_pot=game.pot_small * 2**(len(history) - 1)
         )]
 
     return response_message
