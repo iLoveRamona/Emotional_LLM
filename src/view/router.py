@@ -8,12 +8,14 @@ from typing import List, Optional
 from src.view.agent import CentipedeGame, Player, api
 from src.view.config import model_uri
 
+emts = {'Joy':'радостный', 'Fear': 'испуганный', 'Anger': 'гневный', 'Disgust': 'брезгливый', 'Sadness':'грустный'}
+
 import random
 router = APIRouter(prefix="",
                    tags=["upload"])
 
 templates = Jinja2Templates(directory="templates")
-
+emotes = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный']
 
 class Message(BaseModel):
     id: int
@@ -33,10 +35,20 @@ async def root(request: Request):
 
 
 @router.post("/start-dialog", response_model=List[Message])
-async def start_dialog():
+async def start_dialog(action: dict):
+    print(action)
     usr1 = "Иннокентий"
     usr2 = "Василиск"
-    users = {usr1: Player(usr1, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)]), usr2: Player(usr2, ['радостный', 'грустный', 'отвращение', 'гнев', 'страх'][random.randint(0, 4)])}
+    if not (action['emotion_state_1'] in emts):
+        emotion_1 = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]
+    else:
+        emotion_1 = emts[action['emotion_state_1']]
+    if not (action['emotion_state_2'] in emts):
+        emotion_2 = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]
+    else:
+        emotion_2 = emts[action['emotion_state_2']]
+
+    users = {usr1: Player(usr1, emotion_1), usr2: Player(usr2, emotion_2)}
     game = CentipedeGame(users[usr1], users[usr2], 10)
 
     while not game.is_over:
@@ -54,7 +66,7 @@ async def start_dialog():
             username=usr1 if usr else usr2,
             message=game.explanation[i][0].upper() + game.explanation[i][1:].replace('васелиск', 'Васелиск').replace('иннокентий', 'Иннокентий'),
             emotion=(users[usr1] if usr else users[usr2]).emotional_state,
-            money=f"big pot: {game.pot_big} coins \n small pot: {game.pot_small} coins "
+            money=f"big pot: {4* 2**(i)} coins \n small pot: {1 * 2 ** (i)} coins "
         )
         print(game.history[i])
         response_messages.append(response_message)
@@ -66,11 +78,17 @@ async def start_dialog():
 async def send_messages(action: dict):
     history = []
     action = action['messages']
-    print(action)
+
     usr2 = "Иннокентий"
     usr1 = "Василиск"
-    users = {usr1: Player(usr1, ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]),
-             usr2: Player(usr2, ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)])}
+
+    if not (action[-1][0]['emotion_state'] in emts):
+        emotion = ['радостный', 'грустный', 'брезгливый', 'гневный', 'испуганный'][random.randint(0, 4)]
+    else:
+        emotion = emts[action[-1][0]['emotion_state']]
+    print(emotion, action[-1][0]['emotion_state'])
+    users = {usr1: Player(usr1, emotion),
+             usr2: Player(usr2, emotion)}
     game = CentipedeGame(users[usr1], users[usr2], 10)
     for x in action:
         if x:

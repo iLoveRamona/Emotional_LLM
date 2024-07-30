@@ -5,7 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const modeControls = document.getElementById('mode-controls');
     const passButton     = document.getElementById('pass');
     const takeButton = document.getElementById('take');
-    const clearHistoryButton = document.getElementById('clear-history')
+    const clearHistoryButton = document.getElementById('clear-history');
+    const emotion_state = document.getElementById('emotion-cont');
+    const emotion_states = document.getElementById('model');
+    const emotion_state_1 = document.getElementById('emotion-state-1');
+    const emotion_state_2 = document.getElementById('emotion-state-2');
     let messages = [];
 
     const displayMessage = (msg) => {
@@ -109,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ action: 'start' })
+                body: JSON.stringify({ action: 'start', emotion_state_1: emotion_state_1.value, emotion_state_2: emotion_state_2.value})
             });
 
             if (!response.ok) {
@@ -136,9 +140,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (modeControls.style.display === 'none') {
             modeControls.style.display = 'block';
             startDialogButton.style.display = 'none';
+            emotion_state.style.display = 'flex'
+            emotion_states.style.display = 'none';
         } else {
             modeControls.style.display = 'none';
             startDialogButton.style.display = 'block';
+            emotion_state.style.display = 'none';
+            emotion_states.style.display = 'flex';
         }
     };
 
@@ -155,11 +163,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 message: 'Иннокентий пасует',
                 money: 'big pot: 4  small pot: 1',
                 big_pot: 4,
-                small_pot: 1
+                small_pot: 1,
+                emotion_state: emotion_state.value
             }];
         }
         else{
-            var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2}];
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2, emotion_state: emotion_state.value}];
         }
         console.log(messages)
         messages.push(message);
@@ -188,11 +197,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 message: 'Иннокентий взял большую стопку',
                 money: 'big pot: 4  small pot: 1',
                 big_pot: 4,
-                small_pot: 1
+                small_pot: 1,
+                emotion_state: emotion_state.value
             }];
         }
         else{
-            var message = [{role: 'bot', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2}];
+            var message = [{role: 'bot', username: 'Иннокентий', action: 'Take', message: 'Иннокентий взял большую стопку', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2, emotion_state: emotion_state.value}];
         }
 
         messages.push(message);

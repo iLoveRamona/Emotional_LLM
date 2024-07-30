@@ -6,6 +6,7 @@
     <title>Chat Interface</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <link rel="stylesheet" href="/static/styles/styles.css">
+    <link rel="shortcut icon" type="image/jpg" href="/static/images/favicon.ico"/>
 </head>
 <body>
     <div class="container">
@@ -24,6 +25,33 @@
             <button id="switch-mode" class="btn">Switch Mode</button>
             <button id="clear-history" class="btn">Clear History</button>
         </div>
+        <select id='emotion-cont' class="cont">
+            <option class="cont-1">Random</option>
+            <option class="cont-1" class="радостный">Joy</option>
+            <option class="cont-1" class="грустный">Sadness</option>
+            <option class="cont-1" class="гневный">Anger</option>
+            <option class="cont-1" value="брезгливый">Disgust</option>
+            <option class="cont-1" value="испуганный">Fear</option>
+        </select>
+        <div id="model" class="emot-cont">
+            <select id="emotion-state-1"class="cont-emotions">
+            <option class="cont-1" value="random">Random</option>
+            <option class="cont-1" value="радостный">Joy</option>
+            <option class="cont-1" value="грустный">Sadness</option>
+            <option class="cont-1" value="гневный">Anger</option>
+            <option class="cont-1" value="брезгливый">Disgust</option>
+            <option class="cont-1" value="испуганный">Fear</option>
+        </select>
+            <select id="emotion-state-2"class="cont-emotions">
+            <option class="cont-1">Random</option>
+            <option class="cont-1" class="радостный">Joy</option>
+            <option class="cont-1" class="грустный">Sadness</option>
+            <option class="cont-1" class="гневный">Anger</option>
+            <option class="cont-1" value="брезгливый">Disgust</option>
+            <option class="cont-1" value="испуганный">Fear</option>
+        </select>
+        </div>
+
     </div>
     <script src="/static/js/script.js"></script>
 </body>
