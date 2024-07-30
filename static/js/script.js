@@ -15,7 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const displayMessage = (msg) => {
         const messageElement = document.createElement('div');
         messageElement.classList.add('message', msg.role === 'user' ? 'left' : 'right');
-
+        if(msg.texting){
+        messageElement.id = 'texting-message'};
         const usernameElement = document.createElement('span');
         usernameElement.classList.add('username');
         usernameElement.textContent = msg.username;
@@ -40,7 +41,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     emotionIcon.classList.add('fa-laugh');
                     break;
                 case 'брезгливый':
-                    emotionIcon.classList.add('fa-face-vomit');
+                    emotionIcon.classList.add('fa-frown');
                     break;
                 case 'гневный':
                     emotionIcon.classList.add('fa-angry');
@@ -85,6 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const sendMessagesToServer = async (messages) => {
         try {
+            passButton.setAttribute('disabled','disabled');
+            takeButton.setAttribute('disabled','disabled');
+            await displayMessage({role: 'user', username: 'Васелиск', action: 'Pass', message: 'typing...', money: '', texting: true});
+
             const response = await fetch('/send-messages', {
                 method: 'POST',
                 headers: {
@@ -99,6 +104,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const data = await response.json();
             console.log('Success:', data);
+            document.getElementById('texting-message').remove()
+            passButton.removeAttribute('disabled');
+            takeButton.removeAttribute('disabled');
             await displayMessagesSequentially(data)
             return data
         } catch (error) {
@@ -108,6 +116,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const startDialog = async () => {
         try {
+            startDialogButton.setAttribute('disabled', 'disabled');
+            await displayMessage({role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'typing...', money: '', texting: true});
+
             const response = await fetch('/start-dialog', {
                 method: 'POST',
                 headers: {
@@ -119,8 +130,12 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
             }
+
             const seq_messages = [];
             const data = await response.json();
+
+            document.getElementById('texting-message').remove()
+            startDialogButton.removeAttribute('disabled');
             const message = {role: 'user', username: 'Server', action: 'Pass', message: 'Игра окончена', money: data['big_pot']};
             data.push(message);
 
@@ -170,7 +185,7 @@ document.addEventListener('DOMContentLoaded', () => {
         else{
             var message = [{role: 'bot', username: 'Иннокентий', action: 'Pass', message: 'Иннокентий пасует', money: 'big pot:' + messages[messages.length - 1][0]['big_pot'] + ' small pot: ' + messages[messages.length - 1][0]['small_pot'] + " ", big_pot:messages[messages.length - 1][0]['big_pot']*2, small_pot: messages[messages.length - 1][0]['small_pot']*2, emotion_state: emotion_state.value}];
         }
-        console.log(messages)
+        console.log(messages);
         messages.push(message);
         displayMessage(message[0]);
         const data = await sendMessagesToServer(messages);
